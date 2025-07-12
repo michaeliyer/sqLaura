@@ -28,6 +28,35 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("form-section").style.display = "none";
   // Setup image modal events
   setupImageModal();
+  // View changer logic
+  const grid = document.getElementById("cocktails-list");
+  const viewBtns = [
+    { id: "view-grid", class: "grid" },
+    { id: "view-masonry", class: "masonry" },
+    { id: "view-oblique", class: "oblique" },
+  ];
+  function setGridView(view) {
+    grid.classList.remove("grid", "masonry", "oblique");
+    grid.classList.add(view);
+    viewBtns.forEach((btn) => {
+      const el = document.getElementById(btn.id);
+      if (btn.class === view) {
+        el.classList.add("active");
+      } else {
+        el.classList.remove("active");
+      }
+    });
+  }
+  viewBtns.forEach((btn) => {
+    const el = document.getElementById(btn.id);
+    if (el) {
+      el.addEventListener("click", function (e) {
+        setGridView(btn.class);
+      });
+    }
+  });
+  // Set default view
+  setGridView("grid");
 });
 
 function setupImageModal() {
