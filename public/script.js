@@ -235,16 +235,58 @@ window.collapseCard = function (event, id) {
   event.stopPropagation();
 };
 
+// Image upload logic
+const fileInput = document.getElementById("theJpegFile");
+const imageUrlInput = document.getElementById("theJpeg");
+const imagePreview = document.getElementById("image-upload-preview");
+let uploadedImagePath = null;
+
+if (fileInput) {
+  fileInput.addEventListener("change", async function (e) {
+    const file = fileInput.files[0];
+    if (!file) return;
+    imagePreview.innerHTML = "";
+    uploadedImagePath = null;
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+      imagePreview.innerHTML = `<img src="${ev.target.result}" alt="Preview" style="max-width:120px;max-height:80px;border-radius:8px;box-shadow:0 2px 8px #ccc;">`;
+    };
+    reader.readAsDataURL(file);
+    // Upload file
+    const formData = new FormData();
+    formData.append("image", file);
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.filePath) {
+        uploadedImagePath = data.filePath;
+        // Optionally show a checkmark or success message
+      } else {
+        imagePreview.innerHTML += `<div style='color:red;'>Upload failed: ${
+          data.error || "Unknown error"
+        }</div>`;
+      }
+    } catch (err) {
+      imagePreview.innerHTML += `<div style='color:red;'>Upload failed</div>`;
+    }
+  });
+}
+
 // Handle form submission
 async function handleFormSubmit(e) {
   e.preventDefault();
 
   const formData = new FormData(cocktailForm);
+  let theJpegValue = uploadedImagePath || formData.get("theJpeg") || null;
   const cocktailData = {
     theCock: formData.get("theCock"),
     theIngredients: formData.get("theIngredients"),
     theRecipe: formData.get("theRecipe"),
-    theJpeg: formData.get("theJpeg") || null,
+    theJpeg: theJpegValue,
     theComment: formData.get("theComment") || null,
   };
 

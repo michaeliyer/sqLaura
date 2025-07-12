@@ -3,6 +3,7 @@ const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
+const multer = require("multer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,35 @@ const db = new sqlite3.Database("./cocktails.db", (err) => {
     console.log("Connected to SQLite database.");
     initDatabase();
   }
+});
+
+const uploadsDir = path.join(__dirname, "public", "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const base = path.basename(file.originalname, ext);
+    const unique =
+      base.replace(/[^a-zA-Z0-9_-]/g, "_") + "-" + Date.now() + ext;
+    cb(null, unique);
+  },
+});
+const upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    const allowed = ["image/jpeg", "image/png"];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only JPEG and PNG images are allowed"));
+    }
+  },
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 // Initialize database with table
@@ -214,6 +244,15 @@ app.delete("/api/cocktails/:id", (req, res) => {
     }
     res.json({ message: "Cocktail deleted successfully" });
   });
+});
+
+// Image upload endpoint
+app.post("/api/upload", upload.single("image"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+  const filePath = "/uploads/" + req.file.filename;
+  res.json({ filePath });
 });
 
 // Serve the main page
