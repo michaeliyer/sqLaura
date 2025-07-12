@@ -2,6 +2,7 @@
 let cocktails = [];
 let editingId = null;
 let deleteId = null;
+let expandedCardId = null;
 
 // DOM elements
 const cocktailForm = document.getElementById("cocktail-form");
@@ -23,7 +24,48 @@ const API_BASE = "/api/cocktails";
 document.addEventListener("DOMContentLoaded", function () {
   loadCocktails();
   setupEventListeners();
+  // Hide form by default
+  document.getElementById("form-section").style.display = "none";
+  // Setup image modal events
+  setupImageModal();
 });
+
+function setupImageModal() {
+  const modal = document.getElementById("image-modal");
+  const modalImg = document.getElementById("image-modal-img");
+  const closeBtn = document.getElementById("image-modal-close");
+  // Open modal on image click (event delegation)
+  document
+    .getElementById("cocktails-list")
+    .addEventListener("click", function (e) {
+      const img = e.target.closest(".cocktail-image");
+      if (img) {
+        e.stopPropagation();
+        modalImg.src = img.src;
+        modal.classList.add("show");
+        return;
+      }
+    });
+  // Close modal on close button
+  closeBtn.addEventListener("click", function () {
+    modal.classList.remove("show");
+    modalImg.src = "";
+  });
+  // Close modal on click outside image
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) {
+      modal.classList.remove("show");
+      modalImg.src = "";
+    }
+  });
+  // ESC key closes modal
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("show")) {
+      modal.classList.remove("show");
+      modalImg.src = "";
+    }
+  });
+}
 
 // Setup event listeners
 function setupEventListeners() {
@@ -46,6 +88,36 @@ function setupEventListeners() {
       closeModal();
     }
   });
+
+  // Floating add button
+  document
+    .getElementById("show-form-btn")
+    .addEventListener("click", function (e) {
+      e.preventDefault();
+      showForm();
+    });
+  // Close form button
+  document
+    .getElementById("close-form-btn")
+    .addEventListener("click", function (e) {
+      e.preventDefault();
+      hideForm();
+    });
+  // Also hide form on cancel
+  cancelBtn.addEventListener("click", function () {
+    hideForm();
+  });
+}
+
+function showForm() {
+  document.getElementById("form-section").style.display = "block";
+  document.getElementById("show-form-btn").style.display = "none";
+}
+
+function hideForm() {
+  document.getElementById("form-section").style.display = "none";
+  document.getElementById("show-form-btn").style.display = "flex";
+  resetForm();
 }
 
 // Load all cocktails
@@ -79,9 +151,12 @@ function displayCocktails(cocktailsToShow) {
   noCocktails.style.display = "none";
 
   const cocktailsHTML = cocktailsToShow
-    .map(
-      (cocktail) => `
-        <div class="cocktail-card" data-id="${cocktail.id}">
+    .map((cocktail) => {
+      const isExpanded = expandedCardId === cocktail.id;
+      return `
+        <div class="cocktail-card${isExpanded ? " expanded" : ""}" data-id="${
+        cocktail.id
+      }">
             ${
               cocktail.theJpeg
                 ? `<img src="${escapeHtml(cocktail.theJpeg)}" alt="${escapeHtml(
@@ -89,26 +164,25 @@ function displayCocktails(cocktailsToShow) {
                   )}" class="cocktail-image" onerror="this.style.display='none'">`
                 : ""
             }
-            <div class="cocktail-header">
+            <div class="cocktail-header" onclick="toggleCardExpand(event, ${
+              cocktail.id
+            })" style="cursor:pointer;">
                 <div>
                     <h3 class="cocktail-name">${escapeHtml(
                       cocktail.theCock
                     )}</h3>
                 </div>
                 <div class="cocktail-actions">
-                    <button class="btn btn-edit" onclick="editCocktail(${
-                      cocktail.id
-                    })">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                    <button class="btn btn-delete" onclick="deleteCocktail(${
-                      cocktail.id
-                    }, '${escapeHtml(cocktail.theCock)}')">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
+                    ${
+                      isExpanded
+                        ? `<button class="btn btn-secondary btn-collapse" onclick="collapseCard(event, ${cocktail.id})"><i class="fas fa-times"></i></button>`
+                        : `<button class="btn btn-primary btn-expand"><i class="fas fa-plus"></i></button>`
+                    }
                 </div>
             </div>
-            <div class="cocktail-content">
+            <div class="cocktail-details" style="display:${
+              isExpanded ? "block" : "none"
+            };">
                 <div class="cocktail-ingredients">
                     <h4>Ingredients</h4>
                     <p>${escapeHtml(cocktail.theIngredients)}</p>
@@ -119,21 +193,47 @@ function displayCocktails(cocktailsToShow) {
                 </div>
                 ${
                   cocktail.theComment
-                    ? `
-                    <div class="cocktail-comment">
-                        ${escapeHtml(cocktail.theComment)}
-                    </div>
-                `
+                    ? `<div class="cocktail-comment">${escapeHtml(
+                        cocktail.theComment
+                      )}</div>`
                     : ""
                 }
+                <div class="cocktail-edit-delete">
+                    <button class="btn btn-edit" onclick="editCocktail(${
+                      cocktail.id
+                    });event.stopPropagation();"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn btn-delete" onclick="deleteCocktail(${
+                      cocktail.id
+                    }, '${escapeHtml(
+        cocktail.theCock
+      )}');event.stopPropagation();"><i class="fas fa-trash"></i> Delete</button>
+                </div>
             </div>
         </div>
-    `
-    )
+        `;
+    })
     .join("");
 
   cocktailsList.innerHTML = cocktailsHTML;
 }
+
+// Expand/collapse logic
+window.toggleCardExpand = function (event, id) {
+  // Only expand if not already expanded
+  if (expandedCardId !== id) {
+    expandedCardId = id;
+  } else {
+    expandedCardId = null;
+  }
+  displayCocktails(cocktails);
+  event.stopPropagation();
+};
+
+window.collapseCard = function (event, id) {
+  expandedCardId = null;
+  displayCocktails(cocktails);
+  event.stopPropagation();
+};
 
 // Handle form submission
 async function handleFormSubmit(e) {
@@ -161,6 +261,7 @@ async function handleFormSubmit(e) {
 
     resetForm();
     await loadCocktails();
+    hideForm(); // Hide form after submit
   } catch (error) {
     console.error("Error saving cocktail:", error);
     showMessage("Error saving cocktail", "error");

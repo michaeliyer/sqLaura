@@ -23,9 +23,19 @@
 
       <main class="main-content">
         <!-- Add/Edit Form Section -->
-        <section class="form-section">
+        <section class="form-section" id="form-section" style="display: none">
           <div class="form-container">
-            <h2 id="form-title">Add New Cocktail</h2>
+            <div class="form-header">
+              <h2 id="form-title">Add New Cocktail</h2>
+              <button
+                type="button"
+                id="close-form-btn"
+                class="btn btn-secondary btn-close-form"
+                title="Close"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
             <form id="cocktail-form" class="cocktail-form">
               <input type="hidden" id="cocktail-id" name="id" />
 
@@ -92,6 +102,14 @@
             </form>
           </div>
         </section>
+        <!-- Floating Add Button -->
+        <button
+          id="show-form-btn"
+          class="floating-add-btn"
+          title="Add New Cocktail"
+        >
+          <i class="fas fa-plus"></i>
+        </button>
 
         <!-- Cocktails List Section -->
         <section class="list-section">
@@ -139,6 +157,17 @@
           <button id="cancel-delete" class="btn btn-secondary">Cancel</button>
         </div>
       </div>
+    </div>
+
+    <!-- Modal for expanded cocktail image -->
+    <div id="image-modal" class="image-modal">
+      <span id="image-modal-close" class="image-modal-close">&times;</span>
+      <img
+        id="image-modal-img"
+        class="image-modal-content"
+        src=""
+        alt="Expanded cocktail image"
+      />
     </div>
 
     <script src="script.js"></script>
