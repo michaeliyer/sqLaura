@@ -186,12 +186,13 @@ body {
 .list-section {
   margin: 0 auto;
   margin-top: 24px;
-  background: white;
+  background: linear-gradient(135deg, #7072e1 0%, #764ba2 100%);
+  /* background: rgb(90, 88, 178); */
   border-radius: 16px;
-  padding: 18px 0 18px 0;
+  padding: 18px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 900px;
+  max-width: 1200px;
   display: flex;
   flex-direction: column;
   align-items: center;
