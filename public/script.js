@@ -139,12 +139,16 @@ function setupEventListeners() {
 }
 
 function showForm() {
-  document.getElementById("form-section").style.display = "block";
+  const formSection = document.getElementById("form-section");
+  formSection.style.display = "block";
+  formSection.classList.add("modal-edit");
   document.getElementById("show-form-btn").style.display = "none";
 }
 
 function hideForm() {
-  document.getElementById("form-section").style.display = "none";
+  const formSection = document.getElementById("form-section");
+  formSection.style.display = "none";
+  formSection.classList.remove("modal-edit");
   document.getElementById("show-form-btn").style.display = "flex";
   resetForm();
 }
@@ -393,13 +397,13 @@ function editCocktail(id) {
   document.getElementById("theComment").value = cocktail.theComment || "";
 
   // Show the form section (modal)
-  document.getElementById("form-section").style.display = "block";
+  const formSection = document.getElementById("form-section");
+  formSection.style.display = "block";
+  formSection.classList.add("modal-edit");
   document.getElementById("show-form-btn").style.display = "none";
 
   // Scroll to form
-  document
-    .querySelector(".form-section")
-    .scrollIntoView({ behavior: "smooth" });
+  formSection.scrollIntoView({ behavior: "smooth" });
 }
 
 // Cancel edit
