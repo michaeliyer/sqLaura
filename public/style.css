@@ -718,12 +718,14 @@ body {
 }
 
 .view-changer {
+  padding-top: 3rem;
   display: flex;
   gap: 8px;
   align-items: center;
   margin-left: auto;
   margin-top: -36px;
   margin-bottom: 8px;
+  margin-right: -3rem;
 }
 .view-btn {
   background: #f8f9fa;
