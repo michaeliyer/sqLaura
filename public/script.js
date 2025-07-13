@@ -392,6 +392,10 @@ function editCocktail(id) {
   document.getElementById("theJpeg").value = cocktail.theJpeg || "";
   document.getElementById("theComment").value = cocktail.theComment || "";
 
+  // Show the form section (modal)
+  document.getElementById("form-section").style.display = "block";
+  document.getElementById("show-form-btn").style.display = "none";
+
   // Scroll to form
   document
     .querySelector(".form-section")
