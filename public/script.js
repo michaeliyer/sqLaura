@@ -393,8 +393,30 @@ function editCocktail(id) {
   document.getElementById("theCock").value = cocktail.theCock;
   document.getElementById("theIngredients").value = cocktail.theIngredients;
   document.getElementById("theRecipe").value = cocktail.theRecipe;
-  document.getElementById("theJpeg").value = cocktail.theJpeg || "";
   document.getElementById("theComment").value = cocktail.theComment || "";
+
+  // Handle image field and preview
+  const imageUrlInput = document.getElementById("theJpeg");
+  const imagePreview = document.getElementById("image-upload-preview");
+  const fileInput = document.getElementById("theJpegFile");
+  const imageUrl = cocktail.theJpeg || "";
+
+  // If the image is a URL (not a local upload path), show in URL field
+  if (imageUrl && !imageUrl.startsWith("/uploads/")) {
+    imageUrlInput.value = imageUrl;
+  } else {
+    imageUrlInput.value = "";
+  }
+
+  // Always show the preview if there is an image
+  if (imageUrl) {
+    imagePreview.innerHTML = `<img src="${imageUrl}" alt="Preview" style="max-width:120px;max-height:80px;border-radius:8px;box-shadow:0 2px 8px #ccc;">`;
+  } else {
+    imagePreview.innerHTML = "";
+  }
+
+  // Always clear the file input
+  if (fileInput) fileInput.value = "";
 
   // Show the form section (modal)
   const formSection = document.getElementById("form-section");
